@@ -6,10 +6,11 @@ const request = require("request-promise");
 const dir = '/tmp/images'
 
 // const api = "http://975ecaf8.ngrok.io/api/v1.0/get_similar_items?img=/tmp/dress.jpg"
-const api = "http://localhost:10000/api/v1.0/get_similar_items?img=/tmp/dress.jpg"
+const api = "http://localhost:10000/api/v1.0/get_similar_items?img="
 
 router.post('/', async function(req, res, next) {
   let image = req.body.image;
+  const { limit = 100 } = req.body.limit;
 
   if (!fs.existsSync(dir)) {
     await fs.promises.mkdir(dir)
@@ -25,13 +26,13 @@ router.post('/', async function(req, res, next) {
   //     return res.status(500).send(err);
     
   // });
-  const result = await request.get(`${api}${file}`);
+  const images = await request.get(`${api}${file}`);
   // const images = await request.get(`${api}`);
   const results = images.split(",").map(i => {
     const [ itemId, imageName ] = i.split('/');
     return { itemId, imageName }
   });
-  res.send(results);
+  res.send(results.slice(0, limit));
   
 });
 
